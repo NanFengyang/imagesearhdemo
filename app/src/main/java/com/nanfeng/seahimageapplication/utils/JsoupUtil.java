@@ -25,11 +25,20 @@ public class JsoupUtil {
         String imageUrl = "";
         Elements masthead = document.head().getElementsByTag("script");
         Log.i("JsoupUtil", "masthead:" + masthead.size());
-        for (int i = 0; i < masthead.size(); i++) {
-            Element element = masthead.get(i);
-            imageUrl = element.html().replace("window.bd = ", "");
-            String[] htmlstr = imageUrl.split("bd.queryImageUrl");
-            imageUrl = htmlstr[0].trim();
+        Element element = masthead.get(2);//第三个才是
+        imageUrl = element.html().replace("window.bd = ", "");
+        String[] htmlstr = imageUrl.split("bd.queryImageUrl");
+        imageUrl = htmlstr[0].trim();
+        int indexBefor = imageUrl.indexOf("simiList");
+        Log.i("JsoupUtil", "indexBefor:" + indexBefor);
+        String befor = "simiList::";
+        if (indexBefor > 0) {
+            imageUrl = imageUrl.substring(indexBefor + befor.length(), imageUrl.length());
+        }
+        int indexAfter = imageUrl.indexOf("faceNum");
+        Log.i("JsoupUtil", "indexAfter:" + indexAfter);
+        if (indexAfter > 0) {
+            imageUrl = imageUrl.substring(0, indexAfter - 1);
         }
         return imageUrl;
     }

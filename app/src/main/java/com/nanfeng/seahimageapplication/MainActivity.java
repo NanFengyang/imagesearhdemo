@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements OnChoosePictureLi
     private String upload_imgUrl = "http://image.baidu.com/pictureup/uploadshitu";
     private GridView mGridView;
     private GridResultAdapter mGridResultAdapter;
+    private String mUploadImageLocalPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements OnChoosePictureLi
     @Override
     public void OnChoose(String filePath) {
         upLoadImageAndSearh(filePath);
+
     }
 
     @Override
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements OnChoosePictureLi
      * @param filePath
      */
     private void upLoadImageAndSearh(String filePath) {
+        mUploadImageLocalPath = filePath;
         File file = new File(filePath);
         OkHttpUtils.post()//
                 .addFile("image", "iamge.png", file)//
@@ -81,7 +84,9 @@ public class MainActivity extends AppCompatActivity implements OnChoosePictureLi
                 .execute(new MyStringCallback());
     }
 
-
+    /**
+     * 自定义回调接口
+     */
     class MyStringCallback extends StringCallback {
         @Override
         public void onBefore(Request request) {
@@ -98,8 +103,9 @@ public class MainActivity extends AppCompatActivity implements OnChoosePictureLi
         //响应的结果太长了，这里截断显示
         @Override
         public void onResponse(String response) {
-            LogUtil.LogShitou("onResponse", JsoupUtil.getImageUrl(response));
+            LogUtil.LogShitou("onResponse", response.substring(1000,response.length()));
             List<ImageBean> list = JsonUtil.getImageList(JsoupUtil.getImageUrl(response));
+            Log.i("List", "List:" + list.size());
             mGridResultAdapter = new GridResultAdapter(MainActivity.this, list);
             mGridView.setAdapter(mGridResultAdapter);
         }
@@ -117,6 +123,9 @@ public class MainActivity extends AppCompatActivity implements OnChoosePictureLi
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+        intent.putExtra(DetailActivity.DETAILACTIVITY_KEY, mGridResultAdapter.getItem(i).from_url);
+        startActivity(intent);
 
     }
 

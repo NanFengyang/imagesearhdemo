@@ -1,16 +1,19 @@
 package com.nanfeng.seahimageapplication.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.nanfeng.seahimageapplication.R;
 import com.nanfeng.seahimageapplication.bean.ImageBean;
+import com.nanfeng.seahimageapplication.utils.ScreenUtil;
 
 import java.util.List;
 
@@ -22,11 +25,13 @@ public class GridResultAdapter extends BaseAdapter {
     private List<ImageBean> mList;
     private LayoutInflater mLayoutInflater;
     private Context mContext;
+    private int mWidth;
 
     public GridResultAdapter(Context context, List<ImageBean> list) {
         this.mLayoutInflater = LayoutInflater.from(context);
         this.mList = list;
         this.mContext = context;
+        this.mWidth = ScreenUtil.getScreenWidth(context) / 3;
     }
 
     @Override
@@ -57,15 +62,13 @@ public class GridResultAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) view.getTag();
         }
         ImageBean imageBean = getItem(i);
+        Log.i("imageBean", "image_url:" + imageBean.image_url);
         if (null != imageBean) {
-            Glide.with(mContext).load(imageBean.image_url).asGif().into(viewHolder.imageView_img);//显示gif动态图片
-            if (i == 0) {
-                viewHolder.textView_from.setText("原图");
-            } else {
-                viewHolder.textView_from.setVisibility(View.GONE);
-            }
+            Glide.with(mContext).load(imageBean.image_url).into(viewHolder.imageView_img);//显示gif动态图片
+            viewHolder.textView_from.setVisibility(View.GONE);
         }
-
+        RelativeLayout.LayoutParams newlayoutpa = new RelativeLayout.LayoutParams(this.mWidth, this.mWidth);
+        view.setLayoutParams(newlayoutpa);
         return view;
     }
 

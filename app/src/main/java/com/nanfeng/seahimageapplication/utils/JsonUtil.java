@@ -24,11 +24,9 @@ public class JsonUtil {
      */
     public static List<ImageBean> getImageList(String json) {
         json = json.substring(0, json.length() - 1);
-        LogUtil.LogShitou("getImageList", "json:" + json);
         List<ImageBean> list = null;
         try {
-            JSONObject baseJson = new JSONObject(json);
-            JSONArray baseArray = baseJson.optJSONArray("simiList");
+            JSONArray baseArray = new JSONArray(json);
             if (null != baseArray && baseArray.length() > 0) {
                 list = new ArrayList<>();
                 for (int i = 0; i < baseArray.length(); i++) {
