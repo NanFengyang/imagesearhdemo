@@ -1,6 +1,8 @@
 package com.nanfeng.seahimageapplication;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements OnChoosePictureLi
     private GridView mGridView;
     private GridResultAdapter mGridResultAdapter;
     private String mUploadImageLocalPath;
-
+    private ProgressDialog mPbarDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements OnChoosePictureLi
         mGridView = (GridView) findViewById(R.id.gridview);
         mGridView.setOnItemClickListener(this);
         YCLTools.getInstance().setOnChoosePictureListener(this);
+
     }
 
     /**
@@ -75,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements OnChoosePictureLi
      * @param filePath
      */
     private void upLoadImageAndSearh(String filePath) {
+        mPbarDialog=  ProgressDialog.show( this, " " , " 搜索中. Please wait ... ", true);
         mUploadImageLocalPath = filePath;
         File file = new File(filePath);
         OkHttpUtils.post()//
@@ -103,22 +107,42 @@ public class MainActivity extends AppCompatActivity implements OnChoosePictureLi
         //响应的结果太长了，这里截断显示
         @Override
         public void onResponse(String response) {
+
             LogUtil.LogShitou("onResponse", response.substring(1000,response.length()));
             List<ImageBean> list = JsonUtil.getImageList(JsoupUtil.getImageUrl(response));
+            if(list == null | list.size()<=0){
+                mPbarDialog.setMessage("搜索完成，没有找到结果。");
+                delayLoadingDismiss();
+                return;
+            }
+            mPbarDialog.setMessage("搜索完成");
             Log.i("List", "List:" + list.size());
             mGridResultAdapter = new GridResultAdapter(MainActivity.this, list);
             mGridView.setAdapter(mGridResultAdapter);
+            mPbarDialog.cancel();
         }
 
         @Override
         public void inProgress(float progress) {
             Log.e("MyStringCallback", "inProgress:" + progress);
+
         }
 
         @Override
         public void onError(Request request, Exception e) {
             Log.e("MyStringCallback", "onError:" + e.toString());
+            mPbarDialog.setMessage("识别错误："+ e.toString());
+            delayLoadingDismiss();
         }
+    }
+
+    private void delayLoadingDismiss(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mPbarDialog.cancel();
+            }
+        },3000);
     }
 
     @Override
